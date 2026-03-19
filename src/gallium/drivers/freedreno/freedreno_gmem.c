@@ -754,6 +754,13 @@ fd_gmem_render_tiles(struct fd_batch *batch)
       sysmem = true;
    }
 
+   /* MSAA in GMEM (tiled) mode hangs on A5xx (Adreno 5xx) - the GPU
+    * stalls inside lookup_gmem_state for MSAA batches. Force sysmem
+    * bypass for multisampled renders on this generation.
+    */
+   if (pfb->samples > 1 && is_a5xx(ctx->screen))
+      sysmem = true;
+
    fd_reset_wfi(batch);
 
    ctx->stats.batch_total++;
